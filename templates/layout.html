@@ -28,11 +28,10 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav mr-auto">
-          {% if session["user"] != None %}
+          {% if session["user"] != null %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('books') }}">Books</a>
+            <a class="nav-link" href="{{ url_for('books') }}">List all Books</a>
           </li>
-
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
           </li>
@@ -40,9 +39,19 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('login') }}">Login</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
           {% endif %}
         </ul>
-        <span class="navbar-brand">Book Project 1</span>
+        {% if session["user"] != null %}
+        <span class="navbar-brand">User: {{session["user"]}}</span>
+        <form class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}" method="post">
+          <input class="form-control mr-sm-2" name="search" type="text" placeholder="Searching for a book?"
+            aria-label="Search">
+          <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
+        {% endif %}
       </div>
     </nav>
     {% endblock %}

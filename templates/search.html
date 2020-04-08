@@ -5,20 +5,35 @@ Search
 {% endblock %}
 
 {% block body %}
-<h1>Book Search</h1>
-
-<form class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}" method="post">
-  <input class="form-control mr-sm-2" name="search" type="text" placeholder="Searching for a book?" aria-label="Search">
-  <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-</form>
-<ul>
-  {% for book in books %}
-  <li>
-    <a href="{{ url_for('book', isbn=book.isbn) }}">
-      "<em>{{ book.title }}</em>" from {{ book.author }}
-    </a>
-  </li>
-  {% endfor %}
-</ul>
+<h1>Search</h1>
+<table class="table table-striped my-lg-0 my-2">
+  <thead>
+    <th scope="col">ISBN</th>
+    <th scope="col">Title</th>
+    <th scope="col">Author</th>
+    <th scope="col"></th>
+  </thead>
+  <tbody>
+    {% for book in books %}
+    <tr>
+      <td>{{ book.isbn }}</td>
+      <td>{{ book.title }}</td>
+      <td>{{ book.author }}</td>
+      <td><a href="{{ url_for('book', isbn=book.isbn) }}">More info...</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<nav aria-label="Results navigation">
+  <ul class="pagination">
+    <li class="page-item {% if prev_num == None %} disabled {% endif %}"><a class="page-link"
+        href="{{ url_for('search', page=prev_num) }}">Previous</a></li>
+    <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+    <li class="page-item {% if next_num == None %} disabled {% endif %}"><a class="page-link"
+        href="{{ url_for('search', page=next_num) }}">Next</a></li>
+  </ul>
+</nav>
 
 {% endblock %}

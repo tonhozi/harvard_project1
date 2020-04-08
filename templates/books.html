@@ -8,13 +8,24 @@ Books
 <h1>All Books</h1>
 
 <ul>
-  {% for book in books %}
-  <li>
-    <a href="{{ url_for('book', isbn=book.isbn) }}">
-      "<em>{{ book.title }}</em>" from {{ book.author }}
-    </a>
-  </li>
-  {% endfor %}
+  <table class="table table-striped table-bordered" style="width:100%">
+    <thead>
+      <th scope="col">ISBN</th>
+      <th scope="col">Title</th>
+      <th scope="col">Author</th>
+      <th scope="col"></th>
+    </thead>
+    <tbody>
+      {% for book in books %}
+      <tr>
+        <td>{{ book.isbn }}</td>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td><a href="{{ url_for('book', isbn=book.isbn) }}">More info...</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </ul>
 
 {% endblock %}

@@ -6,6 +6,7 @@ from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask.helpers import url_for
+from math import ceil
 
 
 app = Flask(__name__)
@@ -38,14 +39,76 @@ def index():
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
+    # if user is not logged
     if session.get("user") is None:
         return redirect("login")
     else:
-        # IF GET REQUEST: Show search field and table with all books.
-        if request.method == "GET":
-            return render_template("search.html")
+        # if there is a previous search, this enables pagination
+        if session.get("search") is not None and request.method == "GET":
+            name = session["search"]
+            total_result = session["totalResult"]
+        # if a new search is done
+        elif request.method == "POST" and request.form["search"] is not None:
+            name = Markup.escape(request.form["search"])
+            session["search"] = name
+            search = "%{}%".format(name)
+            total_result = db.execute(
+                "SELECT COUNT(*) FROM BOOKS WHERE isbn LIKE :search OR title LIKE :search OR author LIKE :search",
+                {"search": search},
+            ).scalar()
+            print(total_result)
+            session["totalResult"] = total_result
         else:
-            return "TODO: Search result"
+            name = ""
+            total_result = db.execute("SELECT COUNT(*) FROM BOOKS").scalar()
+            print(total_result)
+
+        results_per_page = 10
+        page = request.args.get("page", 0, type=int)
+        # avoid injection of negative numbers or too high (more than 10k results)
+        if page < 0:
+            page = 0
+        elif page > ceil(10000 / results_per_page):
+            page = 0
+        offset = page * results_per_page
+        print(
+            "Page: {0} \toffset: {1} \t total results: {2}".format(
+                page, offset, total_result
+            )
+        )
+        search = "%{}%".format(name)
+        resp = db.execute(
+            "SELECT * FROM BOOKS WHERE isbn LIKE :search OR title LIKE :search OR author LIKE :search LIMIT :results_per_page OFFSET :offset",
+            {"search": search, "results_per_page": results_per_page, "offset": offset},
+        ).fetchall()
+
+        # initialize pagination variables
+        first = False
+        last_num = ceil(total_result / results_per_page) - 1
+        prev_num = None if page <= 0 else page - 1
+
+        if page == 0:
+            next_num = None if total_result < results_per_page else 1
+            first = False
+        else:
+            first = True
+            next_num = (
+                page + 1 if total_result >= (page + 1) * results_per_page else None
+            )
+        print(
+            "prev_num: {0} \tnext_num: {1}\tlast_num: {2}".format(
+                prev_num, next_num, last_num
+            )
+        )
+
+        return render_template(
+            "search.html",
+            books=resp,
+            next_num=next_num,
+            prev_num=prev_num,
+            first=first,
+            last_num=last_num,
+        )
 
 
 @app.route("/books")
@@ -83,6 +146,10 @@ def read():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # If logged, no need to register =]
+    if "user" in session:
+        return redirect("index")
+
     # IF GET REQUEST: Show register page.
     if request.method == "GET":
         return render_template("register.html")
@@ -116,12 +183,15 @@ def register():
         )
         db.commit()
         # Return successful page and redirect to main page
+        session["user"] = username
         redirect_url = url_for("index")
         return render_template("success.html", user=username, redirect_url=redirect_url)
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if "user" in session:
+        return redirect("index")
     if request.method == "POST":
         # Get username and password and escape to avoid injection
         username = Markup.escape(request.form["username"])
@@ -154,8 +224,7 @@ def login():
         ## Compare with the hash of the given password
         if bcrypt.check_password_hash(correct_psw[0], password):
             # Add session to user
-            session["user"] = []
-            session["user"].append(username)
+            session["user"] = username
             # Return successful page and redirect to main page
             redirect_url = url_for("index")
             return render_template(
@@ -168,7 +237,10 @@ def login():
         return render_template("login.html")
 
 
-@app.route("/logout", methods=["GET"])
+@app.route("/logout")
 def logout():
-    session["user"] = None
-    return render_template("login.html")
+    # for key in session.keys():
+    #     print(key)
+    #     session.pop(key)
+    session.clear()
+    return redirect("login")
