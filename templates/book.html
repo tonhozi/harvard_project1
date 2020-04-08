@@ -6,11 +6,56 @@ Book
 
 {% block body %}
 <h1>Book Details</h1>
-
-<ul>
-  <li>ID: {{ book["id"] }}</li>
-  <li>ISBN: {{ book.isbn }}</li>
-  <li>Average Score: {{ book.average_rating}}/5</li>
-</ul>
+<div class="row">
+  <div class="col-sm-3">
+    <div class="card">
+      <img src="http://covers.openlibrary.org/b/isbn/{{book.isbn13}}-L.jpg" class="card-img-top img-fluid"
+        style="height: 300px;" alt="Cover of {{book_db.title}}">
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{book_db.title}}</h5>
+        <p class="card-text">by {{book_db.author}}, {{book_db.year}}</p>
+        <p class="card-text">ISBN: {{book_db.isbn}}</p>
+        <p class="card-text">Rating: {{book.average_rating}}
+          <br>Rating Count: {{book.work_ratings_count}}</p>
+      </div>
+    </div>
+    <a class="btn btn-outline-dark mt-2" href="{{ url_for('search') }}" role="button">Back to
+      search</a>
+  </div>
+  <div class="col-sm-5">
+    <form>
+      <div class="card">
+        <div class="card-header">
+          <strong>Submit your review</strong>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="title">Review title</label>
+            <input type="text" class="form-control" id="title" placeholder="Great book...">
+          </div>
+          <div class="form-group">
+            <label for="stars">Your Rating</label>
+            <select class="form-control" id="stars">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">Example textarea</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-2">Submit Review</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}

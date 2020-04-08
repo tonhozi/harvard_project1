@@ -125,7 +125,13 @@ def books():
 @app.route("/book/<string:isbn>")
 def book(isbn):
     """List details about a single book."""
-
+    isbn = Markup.escape(isbn)
+    # check if book exist in database
+    book_db = db.execute("SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn":isbn}).fetchone()
+    if book_db == None:
+        return render_template("error.html", error="ISBN invalid or not in our Database.")
+    
+    # Get detail from Goodreads
     res = requests.get(
         "https://www.goodreads.com/book/review_counts.json",
         params={"key": os.getenv("GOODREADS_API"), "isbns": isbn},
@@ -135,7 +141,9 @@ def book(isbn):
         raise Exception("ERROR: API request unsuccessful.")
     data = res.json()
     book = data["books"][0]
-    return render_template("book.html", book=book)
+    
+    # Print results
+    return render_template("book.html", book=book, book_db=book_db)
 
 
 @app.route("/goodreads")
