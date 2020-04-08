@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Success!
+{% endblock %}
+
+{% block body %}
+<h1>Success!</h1>
+
+You have successfully register {{username}}.
+<script>
+  setTimeout(function(){
+      window.location.href = '{{redirect_url}}';
+  }, 2000);
+</script>
+{% endblock %}

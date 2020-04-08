@@ -10,7 +10,7 @@ Books
 <ul>
   {% for book in books %}
   <li>
-    <a href="{{ url_for('book', book_id=book.id) }}">
+    <a href="{{ url_for('book', isbn=book.isbn) }}">
       "<em>{{ book.title }}</em>" from {{ book.author }}
     </a>
   </li>

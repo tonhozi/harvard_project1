@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 .vscode/settings.json
 flask_session/2029240f6d1128be89ddc32729463129
+env.sh
+
+flask_session/

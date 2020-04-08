@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Book
+{% endblock %}
+
+{% block body %}
+<h1>Book Details</h1>
+
+<ul>
+  <li>ID: {{ book["id"] }}</li>
+  <li>ISBN: {{ book.isbn }}</li>
+  <li>Average Score: {{ book.average_rating}}/5</li>
+</ul>
+
+{% endblock %}
