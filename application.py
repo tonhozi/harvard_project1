@@ -63,6 +63,9 @@ def search():
             total_result = db.execute("SELECT COUNT(*) FROM BOOKS").scalar()
             print(total_result)
 
+        if total_result == 0:
+            return render_template("search.html", total_result=0)
+
         results_per_page = 10
         page = request.args.get("page", 0, type=int)
         # avoid injection of negative numbers or too high (more than 10k results)
@@ -108,6 +111,7 @@ def search():
             prev_num=prev_num,
             first=first,
             last_num=last_num,
+            total_result=total_result,
         )
 
 

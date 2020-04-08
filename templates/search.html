@@ -6,6 +6,9 @@ Search
 
 {% block body %}
 <h1>Search</h1>
+{% if total_result == 0 %}
+<h2>No results found!</h2>
+{% else %}
 <table class="table table-striped my-lg-0 my-2">
   <thead>
     <th scope="col">ISBN</th>
@@ -29,11 +32,11 @@ Search
     <li class="page-item {% if prev_num == None %} disabled {% endif %}"><a class="page-link"
         href="{{ url_for('search', page=prev_num) }}">Previous</a></li>
     <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li> -->
     <li class="page-item {% if next_num == None %} disabled {% endif %}"><a class="page-link"
         href="{{ url_for('search', page=next_num) }}">Next</a></li>
   </ul>
 </nav>
-
+{% endif %}
 {% endblock %}
