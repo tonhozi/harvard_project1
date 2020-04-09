@@ -33,13 +33,13 @@ CREATE TABLE review (
       book_id INTEGER REFERENCES books,
   );
 ```
-## ENV settings:
 
-export DATABASE_URL=""  # Set environment link to postgreSQL database
+## ENV settings
+
+export DATABASE_URL="" # Set environment link to postgreSQL database
 export FLASK_DEBUG=1
 export FLASK_APP=application.py
-export GOODREADS_API=   # Set api for goodreads
-
+export GOODREADS_API= # Set api for goodreads
 
 ## Requirements for the project
 
