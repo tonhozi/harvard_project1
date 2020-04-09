@@ -127,10 +127,47 @@ def book(isbn):
     """List details about a single book."""
     isbn = Markup.escape(isbn)
     # check if book exist in database
-    book_db = db.execute("SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn":isbn}).fetchone()
+    book_db = db.execute(
+        "SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn": isbn}
+    ).fetchone()
     if book_db == None:
-        return render_template("error.html", error="ISBN invalid or not in our Database.")
-    
+        return render_template(
+            "error.html", error="ISBN invalid or not in our Database."
+        )
+
+    # Get detail from Goodreads
+    res = requests.get(
+        "https://www.goodreads.com/book/review_counts.json",
+        params={"key": os.getenv("GOODREADS_API"), "isbns": isbn},
+    )
+
+    if res.status_code != 200:
+        return render_template("error.html", error="Not found on our API.")
+    data = res.json()
+    book = data["books"][0]
+
+    # Get the reviews for the book.
+    book_reviews = db.execute(
+        "SELECT * FROM review WHERE book_id = :book_id", {"book_id": book_db.id}
+    ).fetchall()
+    print(book_reviews)
+    # Print results
+    return render_template(
+        "book.html", book=book, book_db=book_db, book_reviews=book_reviews
+    )
+
+
+@app.route("/api/<string:isbn>")
+def api_book(isbn):
+    """List details about a single book."""
+    isbn = Markup.escape(isbn)
+    # check if book exist in database
+    book_db = db.execute(
+        "SELECT * FROM books WHERE isbn LIKE :isbn", {"isbn": isbn}
+    ).fetchone()
+    if book_db == None:
+        return jsonify({"error": "Invalid isbn or not in our database"}), 404
+
     # Get detail from Goodreads
     res = requests.get(
         "https://www.goodreads.com/book/review_counts.json",
@@ -141,19 +178,18 @@ def book(isbn):
         raise Exception("ERROR: API request unsuccessful.")
     data = res.json()
     book = data["books"][0]
-    
+
     # Print results
-    return render_template("book.html", book=book, book_db=book_db)
-
-
-@app.route("/goodreads")
-def read():
-    res = requests.get(
-        "https://www.goodreads.com/book/review_counts.json",
-        params={"key": os.getenv("GOODREADS_API"), "isbns": "9781632168146"},
+    return jsonify(
+        {
+            "title": book_db.title,
+            "author": book_db.author,
+            "year": book_db.year,
+            "isbn": book_db.isbn,
+            "review_count": book["work_ratings_count"],
+            "average_score": book["average_rating"],
+        }
     )
-    print(res.json())
-    return res.json()
 
 
 @app.route("/register", methods=["GET", "POST"])

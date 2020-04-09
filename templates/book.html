@@ -69,21 +69,23 @@ Book
 </div>
 <h2>Reviews from our members</h2>
 <div class="row row-cols-1 row-cols-md-3 mt-4 card-columns">
-  {% for x in range(0,10) %}
+  {% if book_reviews == [] %}
+  <h5 class="ml-3">No reviews yet! Would you like to write one?</h5>
+  {% else %}
+  {% for review in book_reviews %}
   <div class="col mb-3">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Card title {{x}}</h5>
-        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
-          content.
-          This content is a little bit longer.</p>
+        <h5 class="card-title">{{review.title}} - {{review.rating}}/5</h5>
+        <p class="card-text">{{review.detail}}</p>
       </div>
       <div class="card-footer">
-        <small class="text-muted">Created by Person {{x}}</small>
+        <small class="text-muted">Created by {{review.user_id}}</small>
       </div>
     </div>
   </div>
   {% endfor %}
+  {% endif %}
 
 </div>
 
