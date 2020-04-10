@@ -28,7 +28,7 @@ Book
   </div>
   <div class="col-sm-6">
     {% if my_review == None %}
-    <form>
+    <form action="{{ url_for('review') }}" method="post">
       <div class="card">
         <div class="card-header">
           <strong>Submit your review</strong>
@@ -36,7 +36,7 @@ Book
         <div class="card-body">
           <div class="form-row">
             <div class="col">
-              <input type="text" class="form-control" id="title" placeholder="Review Title...">
+              <input type="text" class="form-control" name="title" id="title" placeholder="Review Title...">
             </div>
             <div class="col">
               <div class="form-check form-check-inline ml-2">
@@ -61,10 +61,13 @@ Book
               </div>
             </div>
           </div>
-          <textarea class="form-control mt-2" id="review" rows="3" placeholder="Review body..."></textarea>
+          <textarea class="form-control mt-2" name="detail" id="detail" rows="3"
+            placeholder="Review body..."></textarea>
+          <input type="hidden" name="book_id" id="book_id" value="{{book_db.id}}">
+          <input type="hidden" name="isbn" id="isbn" value="{{book_db.isbn}}">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary mt-2 offset-md-9" >Submit Review</button>
+      <button type="submit" class="btn btn-primary mt-2 offset-md-9">Submit Review</button>
     </form>
     {% else %}
     <form>
