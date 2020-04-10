@@ -27,6 +27,7 @@ Book
       search</a>
   </div>
   <div class="col-sm-6">
+    {% if my_review == None %}
     <form>
       <div class="card">
         <div class="card-header">
@@ -63,8 +64,31 @@ Book
           <textarea class="form-control mt-2" id="review" rows="3" placeholder="Review body..."></textarea>
         </div>
       </div>
-      <button type="submit" class="btn btn-primary mt-2 offset-md-9">Submit Review</button>
+      <button type="submit" class="btn btn-primary mt-2 offset-md-9" >Submit Review</button>
     </form>
+    {% else %}
+    <form>
+      <div class="card">
+        <div class="card-header">
+          <strong>Your review</strong>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="col">
+              <input type="text" class="form-control" id="title" placeholder="Review Title..." name="title"
+                value="{{my_review.title}}" disabled>
+            </div>
+            <div class="col">
+              <p>{{my_review.rating}}/5</p>
+            </div>
+          </div>
+          <textarea class="form-control mt-2" id="review" rows="3" placeholder="Review body..." name="detail"
+            disabled>{{my_review.detail}}</textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-2 offset-md-9" disabled>Already reviewed</button>
+    </form>
+    {% endif %}
   </div>
 </div>
 <h2>Reviews from our members</h2>
@@ -80,7 +104,7 @@ Book
         <p class="card-text">{{review.detail}}</p>
       </div>
       <div class="card-footer">
-        <small class="text-muted">Created by {{review.user_id}}</small>
+        <small class="text-muted">Created by {{review.nickname}}</small>
       </div>
     </div>
   </div>

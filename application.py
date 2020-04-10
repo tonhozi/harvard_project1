@@ -148,13 +148,68 @@ def book(isbn):
 
     # Get the reviews for the book.
     book_reviews = db.execute(
-        "SELECT * FROM review WHERE book_id = :book_id", {"book_id": book_db.id}
+        "SELECT review.*, users.nickname FROM review JOIN users ON review.user_id = users.id WHERE book_id = :book_id",
+        {"book_id": book_db.id},
     ).fetchall()
-    print(book_reviews)
-    # Print results
-    return render_template(
-        "book.html", book=book, book_db=book_db, book_reviews=book_reviews
-    )
+
+    # Get my own review
+    user = session.get("user")
+    my_review = db.execute(
+        "SELECT review.*, users.nickname FROM review JOIN users ON review.user_id = users.id WHERE book_id = :book_id AND user_id = (SELECT user_id from users WHERE username LIKE :user)",
+        {"book_id": book_db.id, "user": user},
+    ).fetchone()
+
+    if my_review is not None:
+        # Print results
+        return render_template(
+            "book.html",
+            book=book,
+            book_db=book_db,
+            book_reviews=book_reviews,
+            my_review=my_review,
+        )
+    else:
+        return render_template(
+            "book.html",
+            book=book,
+            book_db=book_db,
+            book_reviews=book_reviews,
+            my_review=None,
+        )
+
+
+@app.route("/review", methods=["GET", "POST"])
+def review():
+    if request.method == "POST":
+        title = Markup.escape(request.form("title"))
+        detail = Markup.escape(request.form("detail"))
+        # get user_id from session user
+        user = session.get("user")
+        book_id = Markup.escape(request.form("book_id"))
+        rating = Markup.escape(request.form("rating"))
+
+        if (
+            db.execute(
+                "SELECT * FROM review WHERE book_id = :book_id AND WHERE (SELECT id FROM users WHERE username LIKE ':user')",
+                {"book_id": book_id, "user": user},
+            ).rowcount()
+            > 0
+        ):
+            return render_template("error.html", error="Review already exists.")
+
+        # db.execute(
+        #     "INSERT INTO review( title, detail, user_id, book_id, rating) SELECT ':title', ':detail', (SELECT id FROM users WHERE username LIKE ':user') AS user_id, :book_id, :rating",
+        #     {
+        #         "title": title,
+        #         "detail": detail,
+        #         "user": user,
+        #         "book_id": book_id,
+        #         "rating": rating,
+        #     },
+        # )
+        # db.commit()
+
+        return render_template("error.html", error="New review to be written.")
 
 
 @app.route("/api/<string:isbn>")
